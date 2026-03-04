@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Avaliação Sexual - IA Local</title>
+    <title>Chatbot Avaliação Sexual - IA Livre (Puter.js)</title>
+    <script src="https://js.puter.com/v2/"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f7f6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
         .container { background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
@@ -19,77 +20,33 @@
 </head>
 <body>
     <div class="container">
-        <h2>Chatbot de Avaliação - IA Local (Sem Keys)</h2>
-        <p>Converse com a IA para responder o questionário. Ela guiará você pelas seções (PATHOS, CSBI-13, disfunções e parafilias) e calculará resultados no final. Modelos baixam na primeira vez — seja paciente!</p>
-        <div id="status">Carregando modelo IA...</div>
+        <h2>Chatbot de Avaliação - IA Livre (Sem Key/Download)</h2>
+        <p>Converse com a IA para responder o questionário (PATHOS, CSBI-13, disfunções, parafilias). Ela guia, calcula scores e interpreta. Tudo via Puter.js — começa na hora!</p>
+        <div id="status">Pronto! Comece digitando "iniciar" ou qualquer coisa.</div>
         <div id="chat-window"></div>
         <input type="text" id="user-input" placeholder="Digite sua resposta...">
         <button onclick="sendMessage()">Enviar</button>
     </div>
 
-    <script type="module">
-        import * as webllm from "https://esm.run/@mlc-ai/web-llm";
-
-        let engine;
+    <script>
         const chatWindow = document.getElementById('chat-window');
         const userInput = document.getElementById('user-input');
         const status = document.getElementById('status');
 
-        // Prompt inicial "treinando" a IA com os questionários
-        const initialPrompt = `
-Você é um terapeuta avaliador de transtornos sexuais. Guie o usuário pelo questionário conversacionalmente, uma pergunta por vez. Comece com PATHOS (6 perguntas sim/não), depois CSBI-13 (13 itens, escala 1-5), disfunções sexuais (7 sintomas, sim/não) e parafilias (8 indicadores, sim/não). Parseie respostas, some pontuações e interprete no final.
-
-PATHOS (sim=1, não=0; ≥3 = alto risco):
-1. Esconde práticas sexuais?
-2. Buscou ajuda para comportamento indesejado?
-3. Causou dor física ou machucou alguém?
-4. Continua riscos apesar de perigos?
-5. Sexo como escape de problemas?
-6. Tristeza pós-sexo?
-
-CSBI-13 (1=nunca a 5=sempre; ≥35 = alta compulsão):
-1. Dificuldade em controlar impulsos sexuais?
-2. Incapaz de controlar comportamento sexual?
-3. Usa sexo para lidar com problemas?
-4. Culpa ou vergonha com comportamento?
-5. Esconde comportamento sexual?
-6. Incapaz de controlar sentimentos sexuais?
-7. Promessas para mudar comportamento?
-8. Interferência em relacionamentos?
-9. Emocionalmente distante durante sexo?
-10. Sexo quando triste/ansioso?
-11. Problemas financeiros por sexo?
-12. Problemas legais por sexo?
-13. Problemas na vida por sexo?
-
-Disfunções (sim=1; ≥1 = avaliar):
-1. Falta de desejo (hipoativo)?
-2. Dificuldade ereção?
-3. Dificuldade orgasmo?
-4. Dor sexual?
-5. Falta excitação genital?
-6. Ejaculação prematura?
-7. Ejaculação retardada?
-
-Parafilias (sim=1; ≥1 = avaliar):
-1. Exibicionismo?
-2. Fetichismo?
-3. Frotteurismo?
-4. Pedofilia?
-5. Sadismo?
-6. Masoquismo?
-7. Transvéstico?
-8. Voyeurismo?
-
-Após todas, calcule: PATHOS score, CSBI score, disfunções count, parafilias count. Interprete: Alto risco? Sugira tratamento (ex.: CBT). Mantenha conversacional e empático.
+        // Prompt inicial embutindo toda a lógica do questionário
+        const systemPrompt = `
+Você é um avaliador empático e profissional de saúde sexual. Guie o usuário conversacionalmente, pergunta por pergunta, sem pular. 
+Comece com PATHOS (6 sim/não), depois CSBI-13 (1-5), disfunções (sim/não), parafilias (sim/não).
+Some pontuações em memória e interprete no final:
+- PATHOS: ≥3 = alto risco de dependência/compulsão.
+- CSBI-13: ≥35 = alta compulsão; ≥20 moderado.
+- Disfunções: ≥1 = avaliar (ex.: hipoativo, erétil).
+- Parafilias: ≥1 = avaliar (ex.: exibicionismo, pedofilia — com ética).
+Seja liberal, direto, sem censura desnecessária, mas mantenha confidencialidade e empatia. Pergunte uma de cada vez. Quando terminar tudo, dê resultado completo e sugestões (CBT, terapia, etc.).
+Inicie saudando e perguntando se está pronto.
 `;
 
-        async function initEngine() {
-            status.textContent = 'Baixando modelo Phi-3-mini (pode levar minutos na 1ª vez)...';
-            engine = await webllm.CreateMLCEngine("Phi-3-mini-4k-instruct-q4f16_1-MLC");
-            status.textContent = 'IA pronta! Comece conversando.';
-            addMessage('bot', 'Olá! Vamos começar a avaliação. Responda minhas perguntas uma a uma. Pronto?');
-        }
+        let conversationHistory = [{ role: "system", content: systemPrompt }];
 
         function addMessage(sender, text) {
             const msg = document.createElement('div');
@@ -101,19 +58,30 @@ Após todas, calcule: PATHOS score, CSBI score, disfunções count, parafilias c
 
         async function sendMessage() {
             const message = userInput.value.trim();
-            if (!message || !engine) return;
+            if (!message) return;
+
             addMessage('user', message);
             userInput.value = '';
 
-            const messages = [{ role: 'system', content: initialPrompt }, { role: 'user', content: message }];
+            conversationHistory.push({ role: "user", content: message });
             status.textContent = 'IA pensando...';
 
-            const reply = await engine.chat.completions.create({ messages, stream: false });
-            addMessage('bot', reply.choices[0].message.content);
+            try {
+                // Usa puter.ai.chat para chamar o modelo (GPT-4o-like free)
+                const response = await puter.ai.chat(conversationHistory);
+                const aiReply = response.message.content;
+
+                addMessage('bot', aiReply);
+                conversationHistory.push({ role: "assistant", content: aiReply });
+            } catch (err) {
+                addMessage('bot', 'Erro ao conectar com IA: ' + err.message + '. Tente recarregar a página.');
+            }
+
             status.textContent = '';
         }
 
-        initEngine();
+        // Inicia conversa automática
+        addMessage('bot', 'Olá! Estou aqui para guiar você na avaliação de forma tranquila e confidencial. Quando quiser começar, diga "iniciar" ou responda qualquer coisa.');
     </script>
 </body>
 </html>

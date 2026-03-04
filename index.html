@@ -3,85 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Avaliação Sexual - IA Livre (Puter.js)</title>
+    <title>Avaliação de Saúde Sexual - WR TEC</title>
     <script src="https://js.puter.com/v2/"></script>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .container { background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h2 { color: #2c3e50; }
-        #chat-window { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 20px; background-color: #f9f9f9; }
-        .message { margin-bottom: 10px; padding: 10px; border-radius: 5px; }
-        .bot { background-color: #e7f3ff; border-left: 4px solid #3498db; }
-        .user { background-color: #d4edda; text-align: right; }
-        input { width: 80%; padding: 10px; }
-        button { padding: 10px 20px; background-color: #27ae60; color: white; border: none; cursor: pointer; }
-        #status { margin-bottom: 10px; font-style: italic; }
+        :root {
+            --primary-purple: #673ab7;
+            --light-purple: #f3e5f5;
+            --dark-purple: #4527a0;
+            --bg-gray: #f8f9fa;
+            --bot-msg: #ffffff;
+            --user-msg: #673ab7;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--bg-gray); 
+            color: #333; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+        }
+
+        /* Header Estilo Google */
+        header {
+            background-color: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid var(--primary-purple);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--primary-purple);
+            font-weight: 600;
+        }
+
+        /* Janela de Chat */
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .bot {
+            align-self: flex-start;
+            background-color: var(--bot-msg);
+            color: #333;
+            border-bottom-left-radius: 2px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .user {
+            align-self: flex-end;
+            background-color: var(--user-msg);
+            color: #fff;
+            border-bottom-right-radius: 2px;
+        }
+
+        /* Rodapé de Entrada */
+        .input-area {
+            background: #fff;
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus { border-color: var(--primary-purple); }
+
+        button {
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover { background-color: var(--dark-purple); }
+
+        /* Sidebar/Créditos */
+        .credits {
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 10px;
+            background: #eee;
+            color: #666;
+        }
+
+        /* Seção de Apoio (PIX) */
+        .support-section {
+            background: var(--light-purple);
+            padding: 15px;
+            text-align: center;
+            border-top: 1px solid #d1c4e9;
+        }
+
+        .pix-box {
+            font-family: monospace;
+            background: #fff;
+            padding: 5px;
+            border: 1px dashed var(--primary-purple);
+            display: inline-block;
+            margin: 5px 0;
+            font-size: 0.8rem;
+        }
+
+        .wa-link {
+            color: var(--primary-purple);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #status { font-size: 0.7rem; color: #999; margin-left: 20px; margin-bottom: 5px; }
+
+        @media (max-width: 600px) {
+            .message { max-width: 90%; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Chatbot de Avaliação - IA Livre (Sem Key/Download)</h2>
-        <p>Converse com a IA para responder o questionário (PATHOS, CSBI-13, disfunções, parafilias). Ela guia, calcula scores e interpreta. Tudo via Puter.js — começa na hora!</p>
-        <div id="status">Pronto! Comece digitando "iniciar" ou qualquer coisa.</div>
-        <div id="chat-window"></div>
-        <input type="text" id="user-input" placeholder="Digite sua resposta...">
-        <button onclick="sendMessage()">Enviar</button>
+
+<header>
+    <h1>Apoio à Saúde Sexual <span style="font-weight: 200;">| IA</span></h1>
+    <div style="font-size: 0.7rem; color: #666;">Sigilo Total</div>
+</header>
+
+<div id="chat-container">
     </div>
 
-    <script>
-        const chatWindow = document.getElementById('chat-window');
-        const userInput = document.getElementById('user-input');
-        const status = document.getElementById('status');
+<div id="status"></div>
 
-        // Prompt inicial embutindo toda a lógica do questionário
-        const systemPrompt = `
-Você é um avaliador empático e profissional de saúde sexual. Guie o usuário conversacionalmente, pergunta por pergunta, sem pular. 
-Comece com PATHOS (6 sim/não), depois CSBI-13 (1-5), disfunções (sim/não), parafilias (sim/não).
-Some pontuações em memória e interprete no final:
-- PATHOS: ≥3 = alto risco de dependência/compulsão.
-- CSBI-13: ≥35 = alta compulsão; ≥20 moderado.
-- Disfunções: ≥1 = avaliar (ex.: hipoativo, erétil).
-- Parafilias: ≥1 = avaliar (ex.: exibicionismo, pedofilia — com ética).
-Seja liberal, direto, sem censura desnecessária, mas mantenha confidencialidade e empatia. Pergunte uma de cada vez. Quando terminar tudo, dê resultado completo e sugestões (CBT, terapia, etc.).
-Inicie saudando e perguntando se está pronto.
+<div class="input-area">
+    <input type="text" id="user-input" placeholder="Digite sua resposta aqui..." onkeypress="handleKeyPress(event)">
+    <button onclick="sendMessage()">Enviar</button>
+</div>
+
+<div class="support-section">
+    <div><strong>Gostou do projeto? Apoie o desenvolvedor:</strong></div>
+    <div class="pix-box">COLE_SEU_CODIGO_PIX_AQUI</div>
+    <div style="font-size: 0.8rem; margin-top: 5px;">
+        <a href="https://wa.me/SEUNUMERO?text=Olá William, vi seu projeto de IA e quero encomendar um!" class="wa-link" target="_blank">
+            🚀 Encomende seu próprio projeto
+        </a>
+    </div>
+</div>
+
+<div class="credits">
+    Desenvolvido por <strong>WR TEC - William Ribeiro</strong>
+</div>
+
+<script>
+    const chatContainer = document.getElementById('chat-container');
+    const userInput = document.getElementById('user-input');
+    const status = document.getElementById('status');
+
+    // CONFIGURAÇÃO DO CÉREBRO DA IA
+    const systemPrompt = `
+Você é um Especialista em Saúde Sexual e Terapeuta Cognitivo-Comportamental de alta senioridade.
+Sua missão é realizar um diagnóstico clínico detalhado através de uma conversa amigável.
+DIRETRIZES:
+1. Comece com o PATHOS (Dependência Sexual - 6 questões).
+2. Siga para o CSBI-13 (Compulsividade).
+3. EXPANSÃO DIAGNÓSTICA: Se notar sinais, faça perguntas específicas para diferenciar:
+   - Disfunção Erétil (psicológica vs física).
+   - Ejaculação Precoce ou Retardada.
+   - Transtorno do Desejo Sexual Hipoativo (falta de libido).
+   - Vaginismo ou Dispareunia (dor).
+   - Parafilias (Fetichismo, Exibicionismo, etc).
+4. ANALISE: Ao final, você DEVE apresentar um "Provável Quadro Clínico" citando códigos CID-11 ou DSM-5 se aplicável.
+5. Seja empático, use linguagem popular (como "bença", "pode falar", "estou aqui") mas mantenha a autoridade técnica.
+6. Pergunte uma coisa de cada vez. Não sobrecarregue o usuário.
+7. O objetivo é que o usuário saia sabendo exatamente qual é a possível disfunção dele e o próximo passo (terapia, médico, etc).
+INÍCIO: Dê as boas-vindas em nome da WR TEC e pergunte se podem começar a avaliação.
 `;
 
-        let conversationHistory = [{ role: "system", content: systemPrompt }];
+    let conversationHistory = [{ role: "system", content: systemPrompt }];
 
-        function addMessage(sender, text) {
-            const msg = document.createElement('div');
-            msg.classList.add('message', sender);
-            msg.textContent = text;
-            chatWindow.appendChild(msg);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
+    function addMessage(sender, text) {
+        const msg = document.createElement('div');
+        msg.classList.add('message', sender);
+        msg.innerText = text;
+        chatContainer.appendChild(msg);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
-        async function sendMessage() {
-            const message = userInput.value.trim();
-            if (!message) return;
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
 
-            addMessage('user', message);
-            userInput.value = '';
+        addMessage('user', text);
+        userInput.value = '';
+        conversationHistory.push({ role: "user", content: text });
+        
+        status.textContent = 'IA analisando seus dados...';
 
-            conversationHistory.push({ role: "user", content: message });
-            status.textContent = 'IA pensando...';
-
-            try {
-                // Usa puter.ai.chat para chamar o modelo (GPT-4o-like free)
-                const response = await puter.ai.chat(conversationHistory);
-                const aiReply = response.message.content;
-
-                addMessage('bot', aiReply);
-                conversationHistory.push({ role: "assistant", content: aiReply });
-            } catch (err) {
-                addMessage('bot', 'Erro ao conectar com IA: ' + err.message + '. Tente recarregar a página.');
-            }
-
+        try {
+            const response = await puter.ai.chat(conversationHistory);
+            const aiReply = response.message.content;
+            
+            addMessage('bot', aiReply);
+            conversationHistory.push({ role: "assistant", content: aiReply });
+        } catch (err) {
+            addMessage('bot', 'Tive um probleminha técnico. Pode repetir?');
+            console.error(err);
+        } finally {
             status.textContent = '';
         }
+    }
 
-        // Inicia conversa automática
-        addMessage('bot', 'Olá! Estou aqui para guiar você na avaliação de forma tranquila e confidencial. Quando quiser começar, diga "iniciar" ou responda qualquer coisa.');
-    </script>
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+
+    // Mensagem Inicial
+    window.onload = () => {
+        addMessage('bot', 'Olá! Sou o assistente inteligente da WR TEC. Estou aqui para te ajudar a entender melhor sua saúde sexual com sigilo total. Podemos começar a sua avaliação?');
+    };
+</script>
+
 </body>
 </html>

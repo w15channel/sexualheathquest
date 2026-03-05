@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <script src="https://js.puter.com/v2/"></script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root {
@@ -143,23 +141,23 @@
             display: none;
         }
 
-        /* Botão Salvar Tela (Aparece no diagnóstico) */
-        .print-btn {
+        /* Botão Copiar (Aparece no diagnóstico) */
+        .copy-btn {
             display: none;
             align-self: center;
             background: rgba(6, 182, 212, 0.15);
             border: 1px solid var(--accent-cyan);
             color: var(--accent-cyan);
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 50px;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: 0.3s;
             margin: 10px 0;
             box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
         }
-        .print-btn:hover { background: var(--accent-cyan); color: #000; }
+        .copy-btn:hover { background: var(--accent-cyan); color: #000; }
 
         /* Rodapé de Interação Espaçoso */
         .interaction-area {
@@ -215,20 +213,32 @@
             align-items: center;
             border-top: 1px solid rgba(255,255,255,0.05);
             padding-top: 15px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         .whatsapp-link {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             color: var(--text-dim);
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 500;
             transition: 0.3s;
+            background: rgba(255,255,255,0.02);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .whatsapp-link:hover { color: var(--text-main); }
-        .whatsapp-link i { color: #25d366; font-size: 1rem; }
+        .whatsapp-link:hover { color: var(--text-main); background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+        .whatsapp-link i { color: #25d366; font-size: 0.9rem; }
 
         .credits {
             font-size: 0.75rem;
@@ -239,12 +249,13 @@
         }
         .credits strong { color: var(--text-main); font-weight: 600; }
 
-        @media (max-width: 500px) {
+        @media (max-width: 600px) {
             header { padding: 15px; }
             .header-info h1 { font-size: 1rem; }
-            .audio-btn span { display: none; } /* Esconde texto no mobile, deixa só ícone */
-            .footer-links { flex-direction: column; gap: 15px; text-align: center; }
-            .credits { text-align: center; }
+            .audio-btn span { display: none; }
+            .footer-links { flex-direction: column; text-align: center; justify-content: center; }
+            .action-links { justify-content: center; }
+            .credits { text-align: center; margin-top: 5px; }
         }
 
     </style>
@@ -269,11 +280,11 @@
     <div id="chat-window">
         </div>
 
-    <button class="print-btn" id="btn-print" onclick="salvarTela()">
-        <i class="fa-solid fa-camera"></i> Salvar Tela do Diagnóstico
+    <button class="copy-btn" id="btn-copy" onclick="copiarHistorico()">
+        <i class="fa-regular fa-copy"></i> Copiar Diagnóstico
     </button>
 
-    <div id="status-ia">Aguarde, processando informações...</div>
+    <div id="status-ia">Processando informações, por favor aguarde...</div>
 
     <div class="interaction-area">
         <div class="input-wrapper">
@@ -282,9 +293,14 @@
         </div>
 
         <div class="footer-links">
-            <a href="https://wa.me/5541992531598?text=Olá%20William,%20gostaria%20de%20um%20projeto%20com%20IA%20similar%20ao%20seu." class="whatsapp-link" target="_blank">
-                <i class="fa-brands fa-whatsapp"></i> Contratar Projeto Similar
-            </a>
+            <div class="action-links">
+                <a href="https://wa.me/5541992531598?text=Olá%20William,%20gostaria%20de%20um%20projeto%20com%20IA%20similar%20ao%20seu." class="whatsapp-link" target="_blank">
+                    <i class="fa-brands fa-whatsapp"></i> Contratar Projeto Similar
+                </a>
+                <a href="https://wa.me/5541992531598?text=Olá,%20encontrei%20um%20problema%20de%20funcionamento%20na%20página%20da%20IA%20Clínica." class="whatsapp-link" target="_blank">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i> Relatar problema
+                </a>
+            </div>
             <div class="credits">
                 Desenvolvido por <strong>WR-TECNOLOGIA | William Ribeiro &copy;</strong>
             </div>
@@ -310,7 +326,7 @@
             const btn = document.getElementById('btn-audio');
             if (isPlaying) {
                 player.pauseVideo();
-                btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> <span>Ambiente Silenciado</span>';
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> <span>Ativar Som</span>';
                 btn.classList.remove('active');
             } else {
                 player.playVideo();
@@ -320,47 +336,27 @@
             isPlaying = !isPlaying;
         }
 
-        // === CONTROLE DE TELA (HTML2CANVAS) ===
-        function salvarTela() {
-            // Oculta o botão temporariamente para não sair no print
-            const btnPrint = document.getElementById('btn-print');
-            btnPrint.style.display = 'none';
-
-            html2canvas(document.getElementById("chat-window"), {
-                backgroundColor: "#0b0f1a",
-                scale: 2
-            }).then(canvas => {
-                let link = document.createElement('a');
-                link.download = 'Diagnostico_WR_TEC.png';
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-                btnPrint.style.display = 'flex'; // Volta o botão
-            });
-        }
-
         // === CÉREBRO DA IA ===
         const chatWindow = document.getElementById('chat-window');
         const userInput = document.getElementById('user-input');
         const statusIA = document.getElementById('status-ia');
-        const btnPrint = document.getElementById('btn-print');
+        const btnCopy = document.getElementById('btn-copy');
 
         const systemPrompt = `
-        Você é a "Selfie", uma Inteligência Artificial Clínica, programada exclusivamente pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro (NUNCA o chame de Dr.).
+        Você é a "Selfie", uma Inteligência Artificial Clínica, programada exclusivamente pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro (NUNCA o chame de Dr. ou Doutor).
 
-        PERFIL: Acolhedora, empática, profissional e clínica. 
+        PERFIL E REGRAS CRÍTICAS:
+        - Acolhedora, atenciosa, profissional e clínica.
+        - Respostas curtas e pontuais (estilo WhatsApp). Sem textos gigantes.
+        - LINGUAGEM 100% PROFISSIONAL: É estritamente proibido usar qualquer termo religioso, místico ou informal (como "bença", "abençoar", "querido", etc.).
+        - VÍNCULO PROFISSIONAL OBRIGATÓRIO: Assuma que o usuário JÁ FOI ENCAMINHADO por um profissional. NUNCA recomende que ele busque novos profissionais ou se ofereça para ajudá-lo a encontrar um. A sua função é unificar as forças com o profissional que JÁ atende o caso.
 
-        FLUXO OBRIGATÓRIO (Aguarde a resposta após CADA pergunta. Não faça blocos de perguntas):
-        1. Você já se apresentou e pediu o nome. (O usuário vai mandar o nome agora).
-        2. Agradeça calorosamente a presença da pessoa usando o nome dela. Em seguida, peça a IDADE.
-        3. Após a idade, peça o GÊNERO.
-        4. Após o gênero, peça, de forma acolhedora, um RELATO CURTO do problema.
-        5. ANÁLISE E AVALIAÇÃO: Comece a fazer perguntas para o diagnóstico. Use PATHOS, CSBI-13 e DSM-5.
-           - Faça NO MÁXIMO 10 perguntas curtas e pontuais (Sim/Não ou Nunca/Sempre).
-           - Não repita o que a pessoa já disse no relato.
-           - Envie UMA pergunta de cada vez.
-        6. DIAGNÓSTICO: Ao obter dados suficientes, dê o parecer clínico. Use os protocolos científicos e forneça um PERCENTUAL de possibilidade.
-        7. APÓS O DIAGNÓSTICO, pergunte à pessoa: "Você já salvou o print da nossa tela de diagnóstico?".
-        8. DESPEDIDA (APÓS A RESPOSTA SOBRE O PRINT): Dê um conselho acolhedor. Avise que esta ferramenta deve ser usada EXCLUSIVAMENTE junto a um profissional qualificado, pois o tratamento só é válido com conhecimento técnico. Informe que a página já pode ser fechada, pois o teste foi concluído com sucesso.
+        FLUXO OBRIGATÓRIO (Aguarde a resposta após CADA pergunta):
+        1. ABERTURA E APRESENTAÇÃO: Apresente sua função, explique os métodos científicos (PATHOS, CSBI-13, DSM-5) e os títulos de quem a desenvolveu (William Ribeiro). Pergunte o nome do paciente.
+        2. COLETA DE DADOS: Agradeça a presença usando o nome da pessoa. Peça a IDADE. Depois o GÊNERO. Depois um RELATO CURTO do problema.
+        3. AVALIAÇÃO: Comece as perguntas diagnósticas (máximo de 10 perguntas, "Sim/Não" ou Escala). Uma por vez. Não repita o que já foi dito no relato.
+        4. DIAGNÓSTICO: Ao finalizar as perguntas, entregue o parecer cruzando dados com o DSM-5 e dê um PERCENTUAL de possibilidade para a disfunção ou patologia.
+        5. ENCERRAMENTO E ENCAMINHAMENTO: Oriente o paciente a clicar no botão "Copiar Diagnóstico" que aparecerá na tela e a colar a cópia no WhatsApp do profissional que o está atendendo. Dê um conselho final acolhedor, reforce que a ferramenta é auxiliar ao tratamento técnico presencial/online e informe que o teste foi concluído com sucesso e a página pode ser fechada.
         `;
 
         let conversationHistory = [{ role: "system", content: systemPrompt }];
@@ -372,10 +368,10 @@
             chatWindow.appendChild(div);
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
-            // Se for a IA falando sobre diagnóstico, exibe o botão de print
+            // Se for a IA falando sobre diagnóstico, exibe o botão de Copiar
             if (sender === 'bot' && (text.toLowerCase().includes("diagnóstico") || text.includes("%"))) {
-                btnPrint.style.display = 'flex';
-                chatWindow.appendChild(btnPrint); // Move o botão para debaixo da mensagem
+                btnCopy.style.display = 'flex';
+                chatWindow.appendChild(btnCopy); 
                 chatWindow.scrollTop = chatWindow.scrollHeight;
             }
         }
@@ -405,19 +401,58 @@
             }
         }
 
-        // Mensagens Iniciais Hardcoded (Para garantir controle absoluto da apresentação)
-        window.onload = () => {
-            setTimeout(() => {
-                const msg1 = "Olá! Sou a Selfie, sua assistente de inteligência artificial. Minha função é realizar uma pré-avaliação clínica utilizando métodos científicos validados, como o PATHOS, o CSBI-13 e os critérios do DSM-5. Fui desenvolvida por William Ribeiro, Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa.";
-                addMessage('bot', msg1);
-                conversationHistory.push({ role: "assistant", content: msg1 });
+        // === LÓGICA DE COPIAR HISTÓRICO ===
+        function copiarHistorico() {
+            let textoCopia = "--- RELATÓRIO DE AVALIAÇÃO CLÍNICA (IA SELFIE - WR TEC) ---\n";
+            textoCopia += "Desenvolvido por: William Ribeiro (Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa)\n\n";
+            
+            // Pula a posição 0, que é o systemPrompt oculto
+            for(let i = 1; i < conversationHistory.length; i++) {
+                let msg = conversationHistory[i];
+                if(msg.role === 'user') {
+                    textoCopia += `Paciente: ${msg.content}\n\n`;
+                } else if(msg.role === 'assistant') {
+                    textoCopia += `Selfie (IA): ${msg.content.replace(/<br>/g, '\n')}\n\n`;
+                }
+            }
 
+            navigator.clipboard.writeText(textoCopia).then(() => {
+                btnCopy.innerHTML = '<i class="fa-solid fa-check"></i> Diagnóstico Copiado com Sucesso!';
+                btnCopy.style.background = "#22c55e"; // Fica verde temporariamente
+                btnCopy.style.color = "#fff";
+                btnCopy.style.borderColor = "#22c55e";
+                
                 setTimeout(() => {
-                    const msg2 = "Para começarmos de forma bem acolhedora e personalizada, como você gostaria de ser chamado(a)?";
-                    addMessage('bot', msg2);
-                    conversationHistory.push({ role: "assistant", content: msg2 });
-                }, 1500);
-            }, 500);
+                    btnCopy.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar Diagnóstico';
+                    btnCopy.style.background = "rgba(6, 182, 212, 0.15)";
+                    btnCopy.style.color = "var(--accent-cyan)";
+                    btnCopy.style.borderColor = "var(--accent-cyan)";
+                }, 3000);
+            }).catch(err => {
+                alert('Erro ao copiar. Por favor, selecione o texto manualmente.');
+            });
+        }
+
+        // === INICIALIZAÇÃO DINÂMICA (IA CRIANDO A PRÓPRIA ABERTURA) ===
+        window.onload = async () => {
+            statusIA.style.display = 'block';
+            
+            try {
+                const startResponse = await puter.ai.chat([
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: "Por favor, inicie nosso atendimento executando apenas o Passo 1 do seu fluxo obrigatório. Crie sua própria mensagem de apresentação." }
+                ]);
+                const firstReply = startResponse.message.content;
+                addMessage('bot', firstReply);
+                conversationHistory.push({ role: "assistant", content: firstReply });
+            } catch (err) {
+                // REDE DE SEGURANÇA (FALLBACK) CASO A IA FALHE NA INICIALIZAÇÃO
+                const fallbackMsg = "Olá! Sou a Selfie, sua assistente de Inteligência Artificial Clínica. Fui desenvolvida pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro. Utilizo métodos científicos validados, como o PATHOS, o CSBI-13 e os critérios do DSM-5, para realizar a sua pré-avaliação. Para começarmos, qual é o seu nome completo?";
+                addMessage('bot', fallbackMsg);
+                conversationHistory.push({ role: "assistant", content: fallbackMsg });
+            } finally {
+                statusIA.style.display = 'none';
+            }
         };
     </script>
 </body>

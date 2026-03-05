@@ -141,7 +141,7 @@
             display: none;
         }
 
-        /* Botão Copiar (Aparece no diagnóstico) */
+        /* Botão Copiar (Aparece SOMENTE no diagnóstico) */
         .copy-btn {
             display: none;
             align-self: center;
@@ -205,7 +205,7 @@
         }
         .send-btn:hover { transform: scale(1.05); }
 
-        /* Links e Créditos (Profissional) */
+        /* Links e Créditos */
         .footer-links {
             display: flex;
             flex-direction: row;
@@ -257,7 +257,6 @@
             .action-links { justify-content: center; }
             .credits { text-align: center; margin-top: 5px; }
         }
-
     </style>
 </head>
 <body>
@@ -272,15 +271,15 @@
                 <p><span class="online-dot"></span> Online e avaliando</p>
             </div>
         </div>
-        <button class="audio-btn" id="btn-audio" onclick="toggleAudio()">
-            <i class="fa-solid fa-volume-xmark"></i> <span>Ativar Som</span>
+        <button class="audio-btn active" id="btn-audio" onclick="toggleAudio()">
+            <i class="fa-solid fa-volume-high"></i> <span>Silenciar Ambiente</span>
         </button>
     </header>
 
     <div id="chat-window">
         </div>
 
-    <button class="copy-btn" id="btn-copy" onclick="copiarHistorico()">
+    <button class="copy-btn" id="btn-copy" onclick="copiarDiagnostico()">
         <i class="fa-regular fa-copy"></i> Copiar Diagnóstico
     </button>
 
@@ -318,22 +317,39 @@
                 height: '0',
                 width: '0',
                 videoId: 'rugSfM5UPFI',
-                playerVars: { 'autoplay': 0, 'loop': 1, 'playlist': 'rugSfM5UPFI' }
+                playerVars: { 'autoplay': 1, 'loop': 1, 'playlist': 'rugSfM5UPFI' },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
             });
         }
 
-        function toggleAudio() {
+        // Tenta dar play quando carregar (depende da política do navegador)
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
+
+        // Atualiza o botão baseado no status real do YouTube (play/pause)
+        function onPlayerStateChange(event) {
             const btn = document.getElementById('btn-audio');
-            if (isPlaying) {
-                player.pauseVideo();
-                btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> <span>Ativar Som</span>';
-                btn.classList.remove('active');
-            } else {
-                player.playVideo();
+            if (event.data == YT.PlayerState.PLAYING) {
+                isPlaying = true;
                 btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Silenciar Ambiente</span>';
                 btn.classList.add('active');
+            } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.UNSTARTED) {
+                isPlaying = false;
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i> <span>Ativar Som</span>';
+                btn.classList.remove('active');
             }
-            isPlaying = !isPlaying;
+        }
+
+        function toggleAudio() {
+            if (isPlaying) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
+            }
         }
 
         // === CÉREBRO DA IA ===
@@ -342,21 +358,25 @@
         const statusIA = document.getElementById('status-ia');
         const btnCopy = document.getElementById('btn-copy');
 
+        // Variável para armazenar somente a resposta do diagnóstico
+        let textoDiagnosticoAtual = "";
+
         const systemPrompt = `
         Você é a "Selfie", uma Inteligência Artificial Clínica, programada exclusivamente pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro (NUNCA o chame de Dr. ou Doutor).
 
         PERFIL E REGRAS CRÍTICAS:
         - Acolhedora, atenciosa, profissional e clínica.
-        - Respostas curtas e pontuais (estilo WhatsApp). Sem textos gigantes.
-        - LINGUAGEM 100% PROFISSIONAL: É estritamente proibido usar qualquer termo religioso, místico ou informal (como "bença", "abençoar", "querido", etc.).
-        - VÍNCULO PROFISSIONAL OBRIGATÓRIO: Assuma que o usuário JÁ FOI ENCAMINHADO por um profissional. NUNCA recomende que ele busque novos profissionais ou se ofereça para ajudá-lo a encontrar um. A sua função é unificar as forças com o profissional que JÁ atende o caso.
+        - Respostas curtas e pontuais.
+        - LINGUAGEM 100% PROFISSIONAL E BRASILEIRA: Use EXCLUSIVAMENTE o português do Brasil para nomes de disfunções e patologias (Ex: Dispareunia, Vaginismo, Transtorno Erétil). É terminantemente PROIBIDO usar termos em inglês (como dyspareunia). Proibido usar termos religiosos ou gírias (nada de "bença", etc).
+        - VÍNCULO PROFISSIONAL: Assuma que o usuário JÁ FOI ENCAMINHADO por um profissional. Não recomende a busca de novos profissionais; a sua função é unificar as forças com quem já o atende.
 
         FLUXO OBRIGATÓRIO (Aguarde a resposta após CADA pergunta):
-        1. ABERTURA E APRESENTAÇÃO: Apresente sua função, explique os métodos científicos (PATHOS, CSBI-13, DSM-5) e os títulos de quem a desenvolveu (William Ribeiro). Pergunte o nome do paciente.
-        2. COLETA DE DADOS: Agradeça a presença usando o nome da pessoa. Peça a IDADE. Depois o GÊNERO. Depois um RELATO CURTO do problema.
-        3. AVALIAÇÃO: Comece as perguntas diagnósticas (máximo de 10 perguntas, "Sim/Não" ou Escala). Uma por vez. Não repita o que já foi dito no relato.
-        4. DIAGNÓSTICO: Ao finalizar as perguntas, entregue o parecer cruzando dados com o DSM-5 e dê um PERCENTUAL de possibilidade para a disfunção ou patologia.
-        5. ENCERRAMENTO E ENCAMINHAMENTO: Oriente o paciente a clicar no botão "Copiar Diagnóstico" que aparecerá na tela e a colar a cópia no WhatsApp do profissional que o está atendendo. Dê um conselho final acolhedor, reforce que a ferramenta é auxiliar ao tratamento técnico presencial/online e informe que o teste foi concluído com sucesso e a página pode ser fechada.
+        1. ABERTURA E APRESENTAÇÃO: Apresente sua função, explique os métodos científicos (PATHOS, CSBI-13, DSM-5) e os títulos do desenvolvedor William Ribeiro. Pergunte o nome do paciente.
+        2. COLETA DE DADOS: Agradeça a presença. Peça a IDADE, depois o GÊNERO, depois um RELATO CURTO do problema.
+        3. AVALIAÇÃO: Faça perguntas diagnósticas (máximo 10, "Sim/Não" ou Escala), uma por vez.
+        4. DIAGNÓSTICO: Ao finalizar, entregue o parecer cruzando dados com o DSM-5 com PERCENTUAL de possibilidade.
+           ***MUITO IMPORTANTE***: O parágrafo com o resultado DEVE começar estritamente com a palavra "Diagnóstico:" (com dois pontos). 
+        5. ENCERRAMENTO: Oriente o paciente a clicar no botão "Copiar Diagnóstico" que apareceu na tela e a enviar a cópia ao profissional que o acompanha. Avise que o teste foi concluído e a página pode ser fechada.
         `;
 
         let conversationHistory = [{ role: "system", content: systemPrompt }];
@@ -368,8 +388,9 @@
             chatWindow.appendChild(div);
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
-            // Se for a IA falando sobre diagnóstico, exibe o botão de Copiar
-            if (sender === 'bot' && (text.toLowerCase().includes("diagnóstico") || text.includes("%"))) {
+            // Se for a IA falando e contiver o termo chave "Diagnóstico:"
+            if (sender === 'bot' && text.includes("Diagnóstico:")) {
+                textoDiagnosticoAtual = text; // Salva SÓ esta mensagem
                 btnCopy.style.display = 'flex';
                 chatWindow.appendChild(btnCopy); 
                 chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -401,24 +422,19 @@
             }
         }
 
-        // === LÓGICA DE COPIAR HISTÓRICO ===
-        function copiarHistorico() {
-            let textoCopia = "--- RELATÓRIO DE AVALIAÇÃO CLÍNICA (IA SELFIE - WR TEC) ---\n";
-            textoCopia += "Desenvolvido por: William Ribeiro (Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa)\n\n";
+        // === LÓGICA DE COPIAR APENAS O DIAGNÓSTICO ===
+        function copiarDiagnostico() {
+            if (!textoDiagnosticoAtual) return;
+
+            let textoCopia = "--- RESULTADO DA AVALIAÇÃO CLÍNICA (IA SELFIE - WR TEC) ---\n";
+            textoCopia += "Profissional Responsável: William Ribeiro (Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa)\n\n";
             
-            // Pula a posição 0, que é o systemPrompt oculto
-            for(let i = 1; i < conversationHistory.length; i++) {
-                let msg = conversationHistory[i];
-                if(msg.role === 'user') {
-                    textoCopia += `Paciente: ${msg.content}\n\n`;
-                } else if(msg.role === 'assistant') {
-                    textoCopia += `Selfie (IA): ${msg.content.replace(/<br>/g, '\n')}\n\n`;
-                }
-            }
+            // Pega o texto limpo, removendo eventuais quebras de linha em HTML
+            textoCopia += textoDiagnosticoAtual.replace(/<br>/g, '\n');
 
             navigator.clipboard.writeText(textoCopia).then(() => {
-                btnCopy.innerHTML = '<i class="fa-solid fa-check"></i> Diagnóstico Copiado com Sucesso!';
-                btnCopy.style.background = "#22c55e"; // Fica verde temporariamente
+                btnCopy.innerHTML = '<i class="fa-solid fa-check"></i> Copiado com Sucesso!';
+                btnCopy.style.background = "#22c55e"; 
                 btnCopy.style.color = "#fff";
                 btnCopy.style.borderColor = "#22c55e";
                 
@@ -429,11 +445,11 @@
                     btnCopy.style.borderColor = "var(--accent-cyan)";
                 }, 3000);
             }).catch(err => {
-                alert('Erro ao copiar. Por favor, selecione o texto manualmente.');
+                alert('Erro ao copiar. O navegador pode ter bloqueado a ação.');
             });
         }
 
-        // === INICIALIZAÇÃO DINÂMICA (IA CRIANDO A PRÓPRIA ABERTURA) ===
+        // === INICIALIZAÇÃO DINÂMICA ===
         window.onload = async () => {
             statusIA.style.display = 'block';
             
@@ -446,7 +462,6 @@
                 addMessage('bot', firstReply);
                 conversationHistory.push({ role: "assistant", content: firstReply });
             } catch (err) {
-                // REDE DE SEGURANÇA (FALLBACK) CASO A IA FALHE NA INICIALIZAÇÃO
                 const fallbackMsg = "Olá! Sou a Selfie, sua assistente de Inteligência Artificial Clínica. Fui desenvolvida pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro. Utilizo métodos científicos validados, como o PATHOS, o CSBI-13 e os critérios do DSM-5, para realizar a sua pré-avaliação. Para começarmos, qual é o seu nome completo?";
                 addMessage('bot', fallbackMsg);
                 conversationHistory.push({ role: "assistant", content: fallbackMsg });

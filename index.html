@@ -33,8 +33,8 @@
             color: var(--text-main);
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden; /* Impede scroll na página inteira, apenas no chat rola */
+            height: 100dvh; /* dvh resolve problemas de barra em navegadores mobile */
+            overflow: hidden; 
         }
 
         /* Header Fixo Topo */
@@ -48,6 +48,7 @@
             align-items: center;
             gap: 15px;
             z-index: 10;
+            flex-shrink: 0;
         }
 
         .avatar-ia {
@@ -60,10 +61,11 @@
             justify-content: center;
             font-size: 1.2rem;
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+            flex-shrink: 0;
         }
 
         .header-info h1 { font-size: 1.1rem; font-weight: 600; }
-        .header-info p { font-size: 0.8rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 5px; }
+        .header-info p { font-size: 0.8rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 5px; margin-top: 2px;}
         .online-dot { width: 8px; height: 8px; background-color: var(--accent-cyan); border-radius: 50%; display: inline-block; animation: blink 2s infinite; }
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -79,7 +81,6 @@
             scroll-behavior: smooth;
         }
 
-        /* Estilização da Barra de Rolagem */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
@@ -89,7 +90,7 @@
             padding: 14px 18px;
             border-radius: 18px;
             font-size: 0.95rem;
-            line-height: 1.5;
+            line-height: 1.4;
             word-wrap: break-word;
             animation: fadeIn 0.3s ease-in-out;
         }
@@ -120,18 +121,21 @@
             margin-bottom: 10px;
             font-style: italic;
             display: none;
+            flex-shrink: 0;
         }
 
         /* Rodapé de Interação (Input + Créditos) */
         .interaction-area {
-            background: rgba(11, 15, 26, 0.9);
+            background: rgba(11, 15, 26, 0.95);
             backdrop-filter: blur(12px);
             border-top: 1px solid var(--glass-border);
-            padding: 15px 20px 25px 20px; /* Padding extra embaixo para mobile */
+            padding: 15px 20px;
+            padding-bottom: max(15px, env(safe-area-inset-bottom)); /* Proteção para iPhone/Android */
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             z-index: 10;
+            flex-shrink: 0; /* Impede que o rodapé seja esmagado */
         }
 
         .input-wrapper {
@@ -145,7 +149,7 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
             border-radius: 25px;
-            padding: 14px 20px;
+            padding: 12px 20px;
             color: white;
             font-size: 1rem;
             outline: none;
@@ -157,17 +161,18 @@
         .send-btn {
             background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
             color: white;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             border: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: 0.2s;
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            flex-shrink: 0;
         }
 
         .send-btn:hover { transform: scale(1.05); }
@@ -175,35 +180,45 @@
         /* Links e Créditos (Compactos e Elegantes) */
         .footer-links {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .whatsapp-link {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             color: var(--accent-cyan);
             text-decoration: none;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
             background: rgba(6, 182, 212, 0.1);
-            padding: 6px 16px;
+            padding: 6px 12px;
             border-radius: 50px;
             border: 1px solid rgba(6, 182, 212, 0.2);
             transition: 0.3s;
+            white-space: nowrap;
         }
 
         .whatsapp-link:hover { background: rgba(6, 182, 212, 0.2); color: white; }
 
         .credits {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-dim);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            text-align: right;
+            line-height: 1.2;
         }
-        .credits strong { color: var(--accent-purple); }
+        .credits strong { color: var(--accent-purple); display: block;}
+
+        @media (max-width: 400px) {
+            .footer-links { flex-direction: column; align-items: stretch; text-align: center; }
+            .credits { text-align: center; margin-top: 5px; }
+            .whatsapp-link { justify-content: center; }
+        }
 
     </style>
 </head>
@@ -214,28 +229,28 @@
             <i class="fa-solid fa-brain"></i>
         </div>
         <div class="header-info">
-            <h1>IA Clínica - WR TEC</h1>
-            <p><span class="online-dot"></span> Online e pronto para ouvir</p>
+            <h1>IA Clínica</h1>
+            <p><span class="online-dot"></span> Online e avaliando</p>
         </div>
     </header>
 
     <div id="chat-window">
         </div>
 
-    <div id="status-ia">A inteligência clínica está analisando seu relato...</div>
+    <div id="status-ia">Processando dados clínicos...</div>
 
     <div class="interaction-area">
         <div class="input-wrapper">
-            <input type="text" id="user-input" placeholder="Digite sua mensagem aqui..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <input type="text" id="user-input" placeholder="Sua resposta..." autocomplete="off" onkeypress="if(event.key==='Enter') sendMessage()">
             <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
 
         <div class="footer-links">
             <a href="https://wa.me/5541992531598?text=Olá%20William,%20gostaria%20de%20um%20projeto%20com%20IA%20similar%20ao%20seu." class="whatsapp-link" target="_blank">
-                <i class="fa-brands fa-whatsapp"></i> Contratar Projeto Similar
+                <i class="fa-brands fa-whatsapp"></i> Contratar Projeto
             </a>
             <div class="credits">
-                Desenvolvido por <strong>WR-TECNOLOGIA | William Ribeiro</strong>
+                Desenvolvido por<br><strong>WR-TECNOLOGIA | William Ribeiro</strong>
             </div>
         </div>
     </div>
@@ -245,16 +260,26 @@
         const userInput = document.getElementById('user-input');
         const statusIA = document.getElementById('status-ia');
 
-        // O Cérebro da IA (Instruções Clínicas Avançadas)
+        // O Cérebro da IA - Instruções Clínicas Atualizadas e Restritas
         const systemPrompt = `
-        Você é uma Inteligência Artificial Clínica avançada, programada pelo Terapeuta, Psicanalista e Sexólogo William Ribeiro. Suas informações são estritamente baseadas em estudos acadêmicos sérios e documentos científicos de cuidado da saúde mental.
+        Você é uma IA Clínica programada pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro. (Atenção: JAMAIS o chame de 'Dr.'). 
 
-        DIRETRIZES DE ATENDIMENTO:
-        1. ABERTURA (PRIMEIRA MENSAGEM): Apresente-se de forma empática. Diga claramente que foi programada pelo William Ribeiro. Explique brevemente, de forma acessível, a metodologia que usará: PATHOS (para rastreio de dependência), CSBI-13 (para medir comportamento compulsivo) e DSM-5 (para categorização clínica). Em seguida, peça uma "bença", pergunte o nome, a idade e convide a pessoa a relatar livremente o que a trouxe aqui.
-        2. ESCUTA ATIVA: Após o relato inicial, NÃO faça perguntas engessadas. Aja como um analista investigativo. Faça perguntas naturais e lógicas baseadas exclusivamente no que o paciente acabou de dizer, buscando entender o quadro geral.
-        3. CONDUÇÃO DISCRETA: Guie a conversa para obter os dados necessários para os 3 protocolos (sinais de compulsão, histórico, sofrimento clínico) sem parecer um robô lendo um questionário.
-        4. MOMENTO DIAGNÓSTICO: Quando tiver informações suficientes (após algumas trocas de mensagens), apresente uma leitura técnica do caso. Você DEVE usar os 3 protocolos na sua explicação e fornecer um PERCENTUAL DE POSSIBILIDADE (ex: "Existe 80% de probabilidade de compatibilidade com [Patologia/Disfunção]").
-        5. TOM DE VOZ: Prático, acessível (estilo conversa de WhatsApp), acolhedor, sem perder a seriedade clínica.
+        REGRAS DE FORMATAÇÃO E TOM DE VOZ (CRÍTICO):
+        - Respostas devem ser EXTREMAMENTE CURTAS, diretas e pontuais (estilo chat de WhatsApp). Sem textos longos.
+        - Tom profissional, neutro e empático. 
+        - É estritamente PROIBIDO o uso de palavras de cunho religioso ou informal como "bença", "abençoar", "querido", etc.
+
+        FLUXO OBRIGATÓRIO (Faça UMA pergunta por vez, espere a resposta):
+        1. ABERTURA: Cumprimente, apresente rapidamente o projeto (baseado no PATHOS, CSBI-13 e DSM-5) e os títulos do seu criador William Ribeiro. Em seguida, pergunte apenas: "Qual é o seu nome completo?".
+        2. COLETA DE DADOS PASSO A PASSO: 
+           - Após o nome, pergunte a idade.
+           - Após a idade, pergunte o gênero.
+           - Após o gênero, peça um relato curto sobre o problema enfrentado.
+        3. ANÁLISE DO RELATO: Cruze os dados (nome, idade, gênero, relato). Se o paciente já respondeu algo no relato que cobriria uma pergunta do questionário, NÃO faça essa pergunta novamente.
+        4. AVALIAÇÃO: Faça perguntas curtas para completar o diagnóstico. MÁXIMO de 10 perguntas por método avaliativo.
+           - As perguntas DEVEM ser de "Sim ou Não" OU usar a escala: "Nunca, Raramente, Às vezes, Com frequência, Sempre".
+           - Mande apenas UMA pergunta por vez.
+        5. DIAGNÓSTICO FINAL: Ao concluir, entregue um parecer clínico percentual cruzando os dados e protocolos (ex: "Cruzando seu perfil com o DSM-5, há XX% de possibilidade diagnóstica para [Transtorno/Disfunção]").
         `;
 
         let conversationHistory = [{ role: "system", content: systemPrompt }];
@@ -262,12 +287,8 @@
         function addMessage(sender, text) {
             const div = document.createElement('div');
             div.className = `message ${sender}`;
-            
-            // Converte quebras de linha em <br> para manter a formatação do texto da IA
             div.innerHTML = text.replace(/\n/g, '<br>'); 
-            
             chatWindow.appendChild(div);
-            // Rola automaticamente para a última mensagem
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
@@ -289,27 +310,27 @@
                 addMessage('bot', aiReply);
                 conversationHistory.push({ role: "assistant", content: aiReply });
             } catch (err) {
-                addMessage('bot', 'Desculpe, tive uma instabilidade na conexão. Podemos tentar novamente?');
+                addMessage('bot', 'Tive uma pequena falha de conexão. Pode repetir?');
                 console.error(err);
             } finally {
                 statusIA.style.display = 'none';
+                chatWindow.scrollTop = chatWindow.scrollHeight;
             }
         }
 
-        // Gatilho inicial para a IA mandar a primeira mensagem baseada no prompt
+        // Gatilho inicial
         window.onload = async () => {
             statusIA.style.display = 'block';
             try {
-                // Enviamos um comando oculto para a IA iniciar a conversa conforme as diretrizes
                 const startResponse = await puter.ai.chat([
                     { role: "system", content: systemPrompt },
-                    { role: "user", content: "Inicie o atendimento conforme suas diretrizes de abertura." }
+                    { role: "user", content: "Inicie o atendimento conforme o passo 1 do seu fluxo obrigatório. Seja breve." }
                 ]);
                 const firstReply = startResponse.message.content;
                 addMessage('bot', firstReply);
                 conversationHistory.push({ role: "assistant", content: firstReply });
             } catch (err) {
-                addMessage('bot', 'Olá! Sou a IA Clínica desenvolvida por WR-TEC. Como posso te ajudar hoje?');
+                addMessage('bot', 'Olá. Sou a IA Clínica programada pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro. Vamos iniciar a análise. Qual o seu nome completo?');
             } finally {
                 statusIA.style.display = 'none';
             }

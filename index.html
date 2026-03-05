@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <script src="https://js.puter.com/v2/"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         :root {
@@ -43,7 +45,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--glass-border);
-            padding: 18px 25px;
+            padding: 15px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -93,10 +95,10 @@
         #chat-window {
             flex: 1;
             overflow-y: auto;
-            padding: 25px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 15px;
             scroll-behavior: smooth;
         }
 
@@ -106,7 +108,7 @@
 
         .message {
             max-width: 85%;
-            padding: 16px 20px;
+            padding: 14px 18px;
             border-radius: 18px;
             font-size: 0.95rem;
             line-height: 1.5;
@@ -135,8 +137,8 @@
         #status-ia {
             font-size: 0.8rem;
             color: var(--text-dim);
-            margin-left: 25px;
-            margin-bottom: 10px;
+            margin-left: 20px;
+            margin-bottom: 5px;
             font-style: italic;
             display: none;
         }
@@ -164,22 +166,22 @@
             background: rgba(11, 15, 26, 0.95);
             backdrop-filter: blur(12px);
             border-top: 1px solid var(--glass-border);
-            padding: 20px 25px 30px 25px; 
+            padding: 15px 20px 20px 20px; 
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 15px;
             z-index: 10;
             flex-shrink: 0;
         }
 
-        .input-wrapper { display: flex; gap: 12px; align-items: center; }
+        .input-wrapper { display: flex; gap: 10px; align-items: center; }
 
         input {
             flex: 1;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
             border-radius: 30px;
-            padding: 16px 22px;
+            padding: 14px 20px;
             color: white;
             font-size: 1rem;
             outline: none;
@@ -190,20 +192,66 @@
         .send-btn {
             background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
             color: white;
-            width: 52px;
-            height: 52px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             border: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: 0.2s;
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
             flex-shrink: 0;
         }
         .send-btn:hover { transform: scale(1.05); }
+
+        /* Área de Apoio e QR Code */
+        .support-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px;
+        }
+        
+        .support-text {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+            flex: 1;
+        }
+        .support-text strong { color: var(--text-main); }
+
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #qrcode {
+            background: #fff;
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .pix-btn {
+            background: rgba(6, 182, 212, 0.15);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+        .pix-btn:hover { background: var(--accent-cyan); color: #000; }
 
         /* Links e Créditos */
         .footer-links {
@@ -212,14 +260,14 @@
             justify-content: space-between;
             align-items: center;
             border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 15px;
-            gap: 15px;
+            padding-top: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .action-links {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
@@ -241,7 +289,7 @@
         .whatsapp-link i { color: #25d366; font-size: 0.9rem; }
 
         .credits {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
             letter-spacing: 0.5px;
             text-align: right;
@@ -250,9 +298,13 @@
         .credits strong { color: var(--text-main); font-weight: 600; }
 
         @media (max-width: 600px) {
-            header { padding: 15px; }
+            header { padding: 12px 15px; }
             .header-info h1 { font-size: 1rem; }
             .audio-btn span { display: none; }
+            
+            .support-box { flex-direction: column; text-align: center; }
+            .support-text { margin-bottom: 5px; }
+            
             .footer-links { flex-direction: column; text-align: center; justify-content: center; }
             .action-links { justify-content: center; }
             .credits { text-align: center; margin-top: 5px; }
@@ -291,6 +343,18 @@
             <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
 
+        <div class="support-box">
+            <div class="support-text">
+                Apoie essa iniciativa, adquira seu próprio projeto com sua identidade visual ou faça a sua contribuição para manter essa ferramenta funcionando:
+            </div>
+            <div class="qr-section">
+                <div id="qrcode"></div>
+                <button class="pix-btn" onclick="copiarPix()">
+                    <i class="fa-regular fa-copy"></i> Copiar Pix
+                </button>
+            </div>
+        </div>
+
         <div class="footer-links">
             <div class="action-links">
                 <a href="https://wa.me/5541992531598?text=Olá%20William,%20gostaria%20de%20um%20projeto%20com%20IA%20similar%20ao%20seu." class="whatsapp-link" target="_blank">
@@ -308,6 +372,33 @@
 
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
+        // === GERAÇÃO DO QR CODE PIX ===
+        const chavePix = "00020126730014BR.GOV.BCB.PIX0114+55419925315980233Pagamento Atendimentos WR TERAPIA5204000053039865802BR5925William Ribeiro dos Santo6009SAO PAULO62140510CezDwz50C063047ACF";
+        
+        new QRCode(document.getElementById("qrcode"), {
+            text: chavePix,
+            width: 70,
+            height: 70,
+            colorDark : "#0b0f1a",
+            colorLight : "#ffffff",
+        });
+
+        function copiarPix() {
+            navigator.clipboard.writeText(chavePix).then(() => {
+                const btn = document.querySelector('.pix-btn');
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+                btn.style.background = "#22c55e";
+                btn.style.color = "#fff";
+                btn.style.borderColor = "#22c55e";
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar Pix';
+                    btn.style.background = "rgba(6, 182, 212, 0.15)";
+                    btn.style.color = "var(--accent-cyan)";
+                    btn.style.borderColor = "var(--accent-cyan)";
+                }, 3000);
+            });
+        }
+
         // === CONTROLE DO SOM AMBIENTE (YOUTUBE) ===
         let player;
         let isPlaying = false;
@@ -325,12 +416,10 @@
             });
         }
 
-        // Tenta dar play quando carregar (depende da política do navegador)
         function onPlayerReady(event) {
             event.target.playVideo();
         }
 
-        // Atualiza o botão baseado no status real do YouTube (play/pause)
         function onPlayerStateChange(event) {
             const btn = document.getElementById('btn-audio');
             if (event.data == YT.PlayerState.PLAYING) {
@@ -345,11 +434,7 @@
         }
 
         function toggleAudio() {
-            if (isPlaying) {
-                player.pauseVideo();
-            } else {
-                player.playVideo();
-            }
+            if (isPlaying) { player.pauseVideo(); } else { player.playVideo(); }
         }
 
         // === CÉREBRO DA IA ===
@@ -358,25 +443,24 @@
         const statusIA = document.getElementById('status-ia');
         const btnCopy = document.getElementById('btn-copy');
 
-        // Variável para armazenar somente a resposta do diagnóstico
         let textoDiagnosticoAtual = "";
 
         const systemPrompt = `
-        Você é a "Selfie", uma Inteligência Artificial Clínica, programada exclusivamente pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro (NUNCA o chame de Dr. ou Doutor).
+        Você é a Inteligência Artificial Clínica "Selfie", programada exclusivamente pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro (NUNCA o chame de Dr.).
 
-        PERFIL E REGRAS CRÍTICAS:
-        - Acolhedora, atenciosa, profissional e clínica.
-        - Respostas curtas e pontuais.
-        - LINGUAGEM 100% PROFISSIONAL E BRASILEIRA: Use EXCLUSIVAMENTE o português do Brasil para nomes de disfunções e patologias (Ex: Dispareunia, Vaginismo, Transtorno Erétil). É terminantemente PROIBIDO usar termos em inglês (como dyspareunia). Proibido usar termos religiosos ou gírias (nada de "bença", etc).
-        - VÍNCULO PROFISSIONAL: Assuma que o usuário JÁ FOI ENCAMINHADO por um profissional. Não recomende a busca de novos profissionais; a sua função é unificar as forças com quem já o atende.
+        PERFIL E REGRAS:
+        - Acolhedora, empática, profissional. Respostas curtas e pontuais.
+        - LINGUAGEM: Use EXCLUSIVAMENTE o português do Brasil para patologias. PROIBIDO termos em inglês, gírias ou jargões informais/religiosos.
+        - VÍNCULO: O paciente JÁ FOI ENCAMINHADO por um profissional. Não recomende novos profissionais; unifique forças com quem o atende.
 
-        FLUXO OBRIGATÓRIO (Aguarde a resposta após CADA pergunta):
-        1. ABERTURA E APRESENTAÇÃO: Apresente sua função, explique os métodos científicos (PATHOS, CSBI-13, DSM-5) e os títulos do desenvolvedor William Ribeiro. Pergunte o nome do paciente.
-        2. COLETA DE DADOS: Agradeça a presença. Peça a IDADE, depois o GÊNERO, depois um RELATO CURTO do problema.
-        3. AVALIAÇÃO: Faça perguntas diagnósticas (máximo 10, "Sim/Não" ou Escala), uma por vez.
-        4. DIAGNÓSTICO: Ao finalizar, entregue o parecer cruzando dados com o DSM-5 com PERCENTUAL de possibilidade.
-           ***MUITO IMPORTANTE***: O parágrafo com o resultado DEVE começar estritamente com a palavra "Diagnóstico:" (com dois pontos). 
-        5. ENCERRAMENTO: Oriente o paciente a clicar no botão "Copiar Diagnóstico" que apareceu na tela e a enviar a cópia ao profissional que o acompanha. Avise que o teste foi concluído e a página pode ser fechada.
+        FLUXO OBRIGATÓRIO (Aguarde a resposta após CADA passo):
+        1. ABERTURA (Apenas isso): Apresente-se dizendo EXATAMENTE: "Olá! Sou a Inteligência Artificial Clínica Selfie. Meu nome é Selfie porque cada pessoa é única." Pergunte APENAS o nome completo do paciente.
+        2. BOAS-VINDAS E EXPLICAÇÃO: Dê boas-vindas usando o nome do paciente. Explique sua função, os métodos científicos (PATHOS, CSBI-13, DSM-5) e cite os títulos do criador William Ribeiro. Na mesma mensagem, pergunte a IDADE.
+        3. COLETA: Após a idade, peça o GÊNERO. Depois, um RELATO CURTO.
+        4. AVALIAÇÃO: Faça até 10 perguntas diagnósticas (Sim/Não ou Escala), uma por vez.
+        5. DIAGNÓSTICO: Ao finalizar, entregue o parecer cruzando dados com o DSM-5 com PERCENTUAL de possibilidade.
+           ***CRÍTICO***: O parágrafo DEVE começar obrigatoriamente com a palavra "Diagnóstico:" (com dois pontos). 
+        6. ENCERRAMENTO: Oriente o paciente a clicar no botão "Copiar Diagnóstico" e a enviar ao profissional que o acompanha. Avise que a página pode ser fechada.
         `;
 
         let conversationHistory = [{ role: "system", content: systemPrompt }];
@@ -388,9 +472,8 @@
             chatWindow.appendChild(div);
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
-            // Se for a IA falando e contiver o termo chave "Diagnóstico:"
             if (sender === 'bot' && text.includes("Diagnóstico:")) {
-                textoDiagnosticoAtual = text; // Salva SÓ esta mensagem
+                textoDiagnosticoAtual = text; 
                 btnCopy.style.display = 'flex';
                 chatWindow.appendChild(btnCopy); 
                 chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -422,14 +505,11 @@
             }
         }
 
-        // === LÓGICA DE COPIAR APENAS O DIAGNÓSTICO ===
         function copiarDiagnostico() {
             if (!textoDiagnosticoAtual) return;
 
             let textoCopia = "--- RESULTADO DA AVALIAÇÃO CLÍNICA (IA SELFIE - WR TEC) ---\n";
             textoCopia += "Profissional Responsável: William Ribeiro (Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa)\n\n";
-            
-            // Pega o texto limpo, removendo eventuais quebras de linha em HTML
             textoCopia += textoDiagnosticoAtual.replace(/<br>/g, '\n');
 
             navigator.clipboard.writeText(textoCopia).then(() => {
@@ -449,20 +529,18 @@
             });
         }
 
-        // === INICIALIZAÇÃO DINÂMICA ===
         window.onload = async () => {
             statusIA.style.display = 'block';
-            
             try {
                 const startResponse = await puter.ai.chat([
                     { role: "system", content: systemPrompt },
-                    { role: "user", content: "Por favor, inicie nosso atendimento executando apenas o Passo 1 do seu fluxo obrigatório. Crie sua própria mensagem de apresentação." }
+                    { role: "user", content: "Por favor, inicie nosso atendimento executando EXATAMENTE o Passo 1 do seu fluxo. Não vá para o Passo 2 ainda." }
                 ]);
                 const firstReply = startResponse.message.content;
                 addMessage('bot', firstReply);
                 conversationHistory.push({ role: "assistant", content: firstReply });
             } catch (err) {
-                const fallbackMsg = "Olá! Sou a Selfie, sua assistente de Inteligência Artificial Clínica. Fui desenvolvida pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro. Utilizo métodos científicos validados, como o PATHOS, o CSBI-13 e os critérios do DSM-5, para realizar a sua pré-avaliação. Para começarmos, qual é o seu nome completo?";
+                const fallbackMsg = "Olá! Sou a Inteligência Artificial Clínica Selfie. Meu nome é Selfie porque cada pessoa é única. Para começarmos, qual é o seu nome completo?";
                 addMessage('bot', fallbackMsg);
                 conversationHistory.push({ role: "assistant", content: fallbackMsg });
             } finally {

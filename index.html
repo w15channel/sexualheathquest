@@ -7,11 +7,13 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        /* == ESTILOS AGRUPADOS E COMPACTADOS == */
+        /* == ESTILOS == */
         :root { --bg-primary: #0b0f1a; --accent-purple: #8b5cf6; --accent-cyan: #06b6d4; --glass-border: rgba(255,255,255,0.08); --text-main: #f8fafc; --text-dim: #94a3b8; --msg-user: linear-gradient(135deg, #8b5cf6, #6d28d9); --msg-bot: rgba(255,255,255,0.05); }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-primary); background-image: radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.08) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.08) 0px, transparent 50%); color: var(--text-main); display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
@@ -36,7 +38,7 @@
         .user { align-self: flex-end; background: var(--msg-user); border-bottom-right-radius: 4px; color: white; }
         
         #status-ia { font-size: 0.8rem; color: var(--text-dim); margin-left: 20px; margin-bottom: 5px; font-style: italic; display: none; }
-        .copy-btn { display: none; align-self: center; background: rgba(6, 182, 212, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 12px 24px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin: 10px 0; }
+        .print-btn { display: none; align-self: center; background: rgba(6, 182, 212, 0.15); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 12px 24px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin: 10px 0; }
         
         .interaction-area { background: rgba(11, 15, 26, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--glass-border); padding: 15px 20px; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
         .input-wrapper { display: flex; gap: 10px; align-items: center; }
@@ -55,12 +57,29 @@
         .whatsapp-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-dim); text-decoration: none; font-size: 0.75rem; background: rgba(255,255,255,0.02); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
         .credits { font-size: 0.7rem; color: var(--text-dim); text-align: right; }
         
+        /* Área invisível que será transformada em imagem (Print do Diagnóstico) */
+        #print-area { position: absolute; left: -9999px; top: 0; background: #0b0f1a; color: #f8fafc; padding: 30px; border-radius: 12px; width: 600px; font-family: 'Inter', sans-serif; border: 1px solid #06b6d4; }
+        #print-area h2 { color: #06b6d4; margin-bottom: 10px; border-bottom: 1px solid rgba(6, 182, 212, 0.3); padding-bottom: 10px; font-size: 20px; }
+        #print-area .prof-info { font-size: 13px; color: #94a3b8; margin-bottom: 20px; }
+        #print-content { font-size: 15px; line-height: 1.6; }
+        #print-area .footer-print { margin-top: 30px; font-size: 12px; color: #8b5cf6; text-align: center; font-weight: bold; border-top: 1px solid rgba(139, 92, 246, 0.3); padding-top: 10px; }
+
         @media (max-width: 600px) { header { padding: 12px 15px; } .audio-btn span { display: none; } .support-box { flex-direction: column; text-align: center; } .footer-links, .action-links { justify-content: center; text-align: center; } .credits { text-align: center; } }
     </style>
 </head>
 <body>
 
     <div id="yt-player" style="display: none;"></div>
+
+    <div id="print-area">
+        <h2>Laudo de Avaliação Pré-Clínica</h2>
+        <div class="prof-info">
+            <strong>Responsável Técnico:</strong> William Ribeiro<br>
+            Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa
+        </div>
+        <div id="print-content"></div>
+        <div class="footer-print">Gerado por Inteligência Clínica Selfie - WR TEC</div>
+    </div>
 
     <header>
         <div class="header-left">
@@ -76,7 +95,11 @@
     </header>
 
     <div id="chat-window"></div>
-    <button class="copy-btn" id="btn-copy" onclick="copiarDiagnostico()"><i class="fa-regular fa-copy"></i> Copiar Diagnóstico</button>
+    
+    <button class="print-btn" id="btn-print" onclick="salvarPrintDiagnostico()">
+        <i class="fa-solid fa-camera"></i> Salvar Print do Diagnóstico
+    </button>
+    
     <div id="status-ia">Processando informações, por favor aguarde...</div>
 
     <div class="interaction-area">
@@ -112,7 +135,6 @@
         </div>
     </div>
 
-    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         // === QR CODE PIX ===
         const chavePix = "00020126730014BR.GOV.BCB.PIX0114+55419925315980233Pagamento Atendimentos WR TERAPIA5204000053039865802BR5925William Ribeiro dos Santo6009SAO PAULO62140510CezDwz50C063047ACF";
@@ -159,23 +181,25 @@
         const chatWindow = document.getElementById('chat-window');
         const userInput = document.getElementById('user-input');
         const statusIA = document.getElementById('status-ia');
-        const btnCopy = document.getElementById('btn-copy');
+        const btnPrint = document.getElementById('btn-print');
         let textoDiagnosticoAtual = "";
+        let mensagemFinalExibida = false;
 
         const systemPrompt = `Você é a IA Clínica "Selfie", criada pelo Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa William Ribeiro.
-PERFIL E LINGUAGEM: Acolhedora e profissional. Use o português popular e cotidiano (evite palavras formais como diplomacia). É obrigatório o uso da palavra "bença" no seu atendimento, pois faz parte do cotidiano local. NUNCA use termos em inglês para patologias.
+PERFIL: Profissional, acolhedora e respeitosa.
+REGRAS CRÍTICAS DE LINGUAGEM: Use EXCLUSIVAMENTE português do Brasil. É terminantemente PROIBIDO o uso de palavras de cunho religioso, gírias, ou expressões como "bença", "abençoar", "peixe", ou qualquer jargão informal.
 VÍNCULO: O paciente JÁ FOI ENCAMINHADO por um profissional. Não recomende novos profissionais.
 FLUXO OBRIGATÓRIO (Aguarde resposta a cada passo):
 1. ABERTURA: Apresente-se dizendo EXATAMENTE: "Olá! Sou a Inteligência Artificial Clínica Selfie. Meu nome é Selfie porque cada pessoa é única." Peça APENAS o nome completo.
 2. BOAS-VINDAS: Dê boas-vindas. Explique seus métodos (PATHOS, CSBI-13, DSM-5) e os títulos do criador William Ribeiro. Peça a IDADE.
 3. COLETA: Peça o GÊNERO. Depois, peça um RELATO CURTO do problema.
-4. AVALIAÇÃO (15 PERGUNTAS): Faça 15 perguntas ABERTAS que estimulem descrições. 
-   - NÃO REPITA tópicos já abordados.
-   - VOCÊ DEVE ENUMERAR cada pergunta começando com: "Pergunta X de 15: [Sua Pergunta]".
+4. AVALIAÇÃO (15 PERGUNTAS): Faça 15 perguntas ABERTAS. 
+   - NÃO REPITA tópicos abordados.
+   - ENUMERE cada pergunta: "Pergunta X de 15: [Sua Pergunta]".
    - Envie apenas UMA pergunta por vez.
-5. DIAGNÓSTICO: Ao finalizar as 15 perguntas, entregue o parecer cruzando os dados com o DSM-5 e dando um PERCENTUAL de possibilidade.
-   ***OBRIGATÓRIO***: O parágrafo deve começar exatamente com a palavra "Diagnóstico:" (com dois pontos).
-6. ENCERRAMENTO: Peça para clicar em "Copiar Diagnóstico" e enviar ao profissional que o acompanha. Avise que a página pode ser fechada.`;
+5. DIAGNÓSTICO: Ao finalizar, entregue o parecer cruzando dados com o DSM-5 e PERCENTUAL de possibilidade.
+   ***OBRIGATÓRIO***: O parágrafo deve começar exatamente com "Diagnóstico:" (com dois pontos).
+6. ENCERRAMENTO: Peça para clicar em "Salvar Print do Diagnóstico" na tela para compartilhar com seu profissional. E aguarde.`;
 
         let conversationHistory = [{ role: "system", content: systemPrompt }];
 
@@ -188,8 +212,8 @@ FLUXO OBRIGATÓRIO (Aguarde resposta a cada passo):
 
             if (sender === 'bot' && text.includes("Diagnóstico:")) {
                 textoDiagnosticoAtual = text; 
-                btnCopy.style.display = 'flex';
-                chatWindow.appendChild(btnCopy); 
+                btnPrint.style.display = 'flex';
+                chatWindow.appendChild(btnPrint); 
                 chatWindow.scrollTop = chatWindow.scrollHeight;
             }
         }
@@ -211,7 +235,7 @@ FLUXO OBRIGATÓRIO (Aguarde resposta a cada passo):
                 addMessage('bot', aiReply);
                 conversationHistory.push({ role: "assistant", content: aiReply });
             } catch (err) {
-                // FALLBACK PERFEITO: Se a API falhar, ela continua puxando o papo sem parecer erro.
+                // FALLBACK NATURAL DE COMUNICAÇÃO
                 addMessage('bot', 'Gostaria de complementar com mais alguma informação?');
             } finally {
                 statusIA.style.display = 'none';
@@ -219,20 +243,52 @@ FLUXO OBRIGATÓRIO (Aguarde resposta a cada passo):
             }
         }
 
-        function copiarDiagnostico() {
-            if (!textoDiagnosticoAtual) return;
-            let textoCopia = "--- RESULTADO DA AVALIAÇÃO CLÍNICA (IA SELFIE - WR TEC) ---\n";
-            textoCopia += "Profissional Responsável: William Ribeiro (Psicoterapeuta, Psicanalista e Especialista em Sexualidade Integrativa)\n\n";
-            textoCopia += textoDiagnosticoAtual.replace(/<br>/g, '\n');
+        function dispararMensagemFinal() {
+            if (mensagemFinalExibida) return;
+            mensagemFinalExibida = true;
+            
+            const msgFinal = "Agradeço muito por ter passado por esse processo comigo e pela confiança!\n\nEsta ferramenta é uma iniciativa de uso comunitário e acesso livre. A manutenção e o aprimoramento desse sistema dependem do apoio dos próprios usuários.\n\nConvido você a contribuir com a nossa ferramenta através de uma doação voluntária. Para isso, basta clicar no botão 'Copiar Pix' logo abaixo na área de apoio.\n\nSeu teste foi concluído com sucesso e o print do seu diagnóstico já está no seu dispositivo. Você já pode fechar esta página. Até a próxima!";
+            
+            setTimeout(() => {
+                addMessage('bot', msgFinal);
+                conversationHistory.push({ role: "assistant", content: msgFinal });
+                // Desabilita o input para finalizar a conversa
+                document.getElementById('user-input').disabled = true;
+                document.getElementById('user-input').placeholder = "Avaliação concluída.";
+            }, 1000);
+        }
 
-            navigator.clipboard.writeText(textoCopia).then(() => {
-                btnCopy.innerHTML = '<i class="fa-solid fa-check"></i> Copiado com Sucesso!';
-                btnCopy.style.background = "#22c55e"; btnCopy.style.color = "#fff";
+        function salvarPrintDiagnostico() {
+            if (!textoDiagnosticoAtual) return;
+            
+            // Popula a área invisível com o texto do diagnóstico
+            document.getElementById('print-content').innerHTML = textoDiagnosticoAtual.replace(/\n/g, '<br>');
+            const printArea = document.getElementById('print-area');
+
+            html2canvas(printArea, {
+                backgroundColor: "#0b0f1a",
+                scale: 2 // Alta qualidade
+            }).then(canvas => {
+                let link = document.createElement('a');
+                link.download = 'Diagnostico_WR_TEC.png';
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                
+                btnPrint.innerHTML = '<i class="fa-solid fa-check"></i> Print Salvo com Sucesso!';
+                btnPrint.style.background = "#22c55e"; 
+                btnPrint.style.color = "#fff";
+                btnPrint.style.borderColor = "#22c55e";
+                
                 setTimeout(() => {
-                    btnCopy.innerHTML = '<i class="fa-regular fa-copy"></i> Copiar Diagnóstico';
-                    btnCopy.style.background = "rgba(6, 182, 212, 0.15)"; btnCopy.style.color = "var(--accent-cyan)";
-                }, 3000);
-            }).catch(() => alert('Erro ao copiar. O navegador bloqueou a ação.'));
+                    btnPrint.innerHTML = '<i class="fa-solid fa-camera"></i> Salvar Print do Diagnóstico';
+                    btnPrint.style.background = "rgba(6, 182, 212, 0.15)"; 
+                    btnPrint.style.color = "var(--accent-cyan)";
+                    btnPrint.style.borderColor = "var(--accent-cyan)";
+                    
+                    // Dispara a mensagem final de agradecimento e PIX após salvar o print
+                    dispararMensagemFinal();
+                }, 2500);
+            }).catch(() => alert('Erro ao gerar o print. Verifique se o navegador permite o download.'));
         }
 
         window.onload = async () => {

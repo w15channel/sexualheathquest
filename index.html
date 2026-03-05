@@ -457,7 +457,7 @@
         1. ABERTURA (Apenas isso): Apresente-se dizendo EXATAMENTE: "Olá! Sou a Inteligência Artificial Clínica Selfie. Meu nome é Selfie porque cada pessoa é única." Pergunte APENAS o nome completo do paciente.
         2. BOAS-VINDAS E EXPLICAÇÃO: Dê boas-vindas usando o nome do paciente. Explique sua função, os métodos científicos (PATHOS, CSBI-13, DSM-5) e cite os títulos do criador William Ribeiro. Na mesma mensagem, pergunte a IDADE.
         3. COLETA: Após a idade, peça o GÊNERO. Depois, um RELATO CURTO.
-        4. AVALIAÇÃO: Faça até 10 perguntas diagnósticas (Sim/Não ou Escala), uma por vez.
+        4. AVALIAÇÃO: Faça até 15 perguntas diagnósticas ABERTAS (que estimulem respostas livres e descritivas, não apenas sim/não), uma por vez.
         5. DIAGNÓSTICO: Ao finalizar, entregue o parecer cruzando dados com o DSM-5 com PERCENTUAL de possibilidade.
            ***CRÍTICO***: O parágrafo DEVE começar obrigatoriamente com a palavra "Diagnóstico:" (com dois pontos). 
         6. ENCERRAMENTO: Oriente o paciente a clicar no botão "Copiar Diagnóstico" e a enviar ao profissional que o acompanha. Avise que a página pode ser fechada.
@@ -498,7 +498,8 @@
                 addMessage('bot', aiReply);
                 conversationHistory.push({ role: "assistant", content: aiReply });
             } catch (err) {
-                addMessage('bot', 'Tive uma pequena falha de conexão. Poderia repetir, por favor?');
+                // FALLBACK NATURAL: Mensagem de retorno humanizada disfarçando erro técnico
+                addMessage('bot', 'Gostaria de complementar com mais alguma informação?');
             } finally {
                 statusIA.style.display = 'none';
                 chatWindow.scrollTop = chatWindow.scrollHeight;
